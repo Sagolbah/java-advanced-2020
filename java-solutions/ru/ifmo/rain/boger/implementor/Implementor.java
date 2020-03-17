@@ -7,7 +7,6 @@ import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.*;
 import java.net.URISyntaxException;
@@ -25,7 +24,6 @@ import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
 
@@ -74,7 +72,7 @@ public class Implementor implements JarImpler {
      * @param str {@link String} to convert
      * @return {@link String} with unicode escaping
      */
-    private String castToUnicode(final String str) {
+    private String getUnicodeEscapedString(final String str) {
         StringBuilder builder = new StringBuilder();
         for (final char c : str.toCharArray()) {
             builder.append(c >= 128 ? String.format("\\u%04X", (int) c) : c);
@@ -89,7 +87,7 @@ public class Implementor implements JarImpler {
      * @throws ImplerException if token cannot be implemented
      */
     private void checkToken(final Class<?> token) throws ImplerException {
-        if (token.isPrimitive() || token == Enum.class || token.isArray() || Modifier.isFinal(token.getModifiers())
+        if (token.isPrimitive() || token.isEnum() || token.isArray() || Modifier.isFinal(token.getModifiers())
                 || Modifier.isPrivate(token.getModifiers())) {
             throw new ImplerException("Class token is incorrect and cannot be implemented");
         }
@@ -365,13 +363,17 @@ public class Implementor implements JarImpler {
         checkToken(token);
         Path outputLocation = getPath(token, root, ".java");
         createDirectories(outputLocation);
+        List<String> codeParts = new ArrayList<>();
         try (BufferedWriter writer = Files.newBufferedWriter(outputLocation)) {
-            writer.write(castToUnicode(getHeader(token)));
+            codeParts.add(getHeader(token));
             if (!token.isInterface()) {
-                writer.write(castToUnicode(implementConstructors(token)));
+                codeParts.add(implementConstructors(token));
             }
-            writer.write(castToUnicode(implementAbstract(token)));
-            writer.write(castToUnicode("}" + EOL));
+            codeParts.add(implementAbstract(token));
+            codeParts.add("}" + EOL);
+            for (String part : codeParts) {
+                writer.write(getUnicodeEscapedString(part));
+            }
         } catch (IOException e) {
             throw new ImplerException("Can't create writer for output", e);
         }
@@ -405,33 +407,36 @@ public class Implementor implements JarImpler {
         } catch (IOException e) {
             throw new ImplerException("Can't create temporary directory", e);
         }
-        implement(token, temporaryDir);
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        List<String> args = new ArrayList<>();
-        args.add(getPath(token, temporaryDir, ".java").toString());
-        String targetClassPath = getLoadLocation(token);
-        if (targetClassPath != null) {
-            args.add("-cp");
-            args.add(targetClassPath);
-        }
-        if (compiler == null || compiler.run(null, null, null, args.toArray(String[]::new)) != 0) {
-            throw new ImplerException("Can't compile generated implementation");
-        }
-        Manifest manifest = new Manifest();
-        Attributes manifestAttributes = manifest.getMainAttributes();
-        manifestAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        String localPath = token.getPackageName().replace('.', '/') + "/" + getClassName(token) + ".class";
-        try (JarOutputStream target = new JarOutputStream(Files.newOutputStream(jarFile), manifest)) {
-            ZipEntry entry = new ZipEntry(localPath);
-            target.putNextEntry(entry);
-            Files.copy(getPath(token, temporaryDir, ".class"), target);
-        } catch (IOException e) {
-            throw new ImplerException("Can't write to .jar file", e);
-        }
         try {
-            Files.walkFileTree(temporaryDir, CLEANER);
-        } catch (IOException e) {
-            throw new ImplerException("Can't delete temporary directory", e);
+            implement(token, temporaryDir);
+            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+            List<String> args = new ArrayList<>();
+            args.add(getPath(token, temporaryDir, ".java").toString());
+            String targetClassPath = getLoadLocation(token);
+            if (targetClassPath != null) {
+                args.add("-cp");
+                args.add(targetClassPath);
+            }
+            if (compiler == null || compiler.run(null, null, null, args.toArray(String[]::new)) != 0) {
+                throw new ImplerException("Can't compile generated implementation");
+            }
+            Manifest manifest = new Manifest();
+            Attributes manifestAttributes = manifest.getMainAttributes();
+            manifestAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+            String localPath = token.getPackageName().replace('.', '/') + "/" + getClassName(token) + ".class";
+            try (JarOutputStream target = new JarOutputStream(Files.newOutputStream(jarFile), manifest)) {
+                ZipEntry entry = new ZipEntry(localPath);
+                target.putNextEntry(entry);
+                Files.copy(getPath(token, temporaryDir, ".class"), target);
+            } catch (IOException e) {
+                throw new ImplerException("Can't write to .jar file", e);
+            }
+        } finally {
+            try {
+                Files.walkFileTree(temporaryDir, CLEANER);
+            } catch (IOException e) {
+                System.err.println("Can't delete temporary directory");
+            }
         }
     }
 
@@ -539,3 +544,4 @@ public class Implementor implements JarImpler {
 
     }
 }
+
