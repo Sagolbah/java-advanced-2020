@@ -20,13 +20,13 @@ public class IterativeParallelism implements ListIP {
         if (threadsNum <= 0) {
             throw new IllegalArgumentException("Number of threads must be greater or equal than 1");
         }
-        final int BLOCK_SIZE = values.size() / threadsNum;
-        final int REMAINDER_SIZE = values.size() % threadsNum;
+        final int blockSize = values.size() / threadsNum;
+        final int remainderSize = values.size() % threadsNum;
         List<Stream<? extends T>> streams = new ArrayList<>();
         List<Thread> threads = new ArrayList<>();
         int left = 0;
         for (int i = 0; i < threadsNum; i++) {
-            int right = left + BLOCK_SIZE + (REMAINDER_SIZE > i ? 1 : 0);
+            int right = left + blockSize + (remainderSize > i ? 1 : 0);
             if (right != left) {
                 streams.add(values.subList(left, right).stream());
             }
@@ -35,8 +35,8 @@ public class IterativeParallelism implements ListIP {
         // Creating with specified size - adding with list.add() may cause invalid order
         List<R> result = new ArrayList<>(Collections.nCopies(streams.size(), null));
         for (int i = 0; i < streams.size(); i++) {
-            final int TARGET_INDEX = i;
-            Thread thread = new Thread(() -> result.set(TARGET_INDEX, segmentFolder.apply(streams.get(TARGET_INDEX))));
+            final int targetIndex = i;
+            Thread thread = new Thread(() -> result.set(targetIndex, segmentFolder.apply(streams.get(targetIndex))));
             threads.add(thread);
             thread.start();
         }
