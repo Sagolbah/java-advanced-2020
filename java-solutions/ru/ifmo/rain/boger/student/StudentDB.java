@@ -10,7 +10,7 @@ import info.kgeorgiy.java.advanced.student.Student;
 import info.kgeorgiy.java.advanced.student.Group;
 
 public class StudentDB implements AdvancedStudentGroupQuery {
-    private static final Comparator<Student> FULL_NAME_CMP = Comparator.comparing(Student::getLastName)
+    private static final Comparator<Student> FULL_NAME_COMPARATOR = Comparator.comparing(Student::getLastName)
             .thenComparing(Student::getFirstName).thenComparing(Student::getId);
     private static final String EMPTY_ANSWER = "";
 
@@ -26,13 +26,13 @@ public class StudentDB implements AdvancedStudentGroupQuery {
         return students.stream().map(mapping).collect(Collectors.toCollection(collection));
     }
 
-    private List<Student> sortStudentsList(final Collection<Student> students, final Comparator<Student> comparator) {
+    private List<Student> sortStudents(final Collection<Student> students, final Comparator<Student> comparator) {
         return students.stream().sorted(comparator).collect(Collectors.toList());
     }
 
     private List<Student> searchStudents(final Collection<Student> students,
                                          final Function<Student, String> mapping, final String query) {
-        return students.stream().sorted(FULL_NAME_CMP).filter(s -> query.equals(mapping.apply(s))).
+        return students.stream().sorted(FULL_NAME_COMPARATOR).filter(s -> query.equals(mapping.apply(s))).
                 collect(Collectors.toList());
     }
 
@@ -97,12 +97,12 @@ public class StudentDB implements AdvancedStudentGroupQuery {
 
     @Override
     public List<Student> sortStudentsById(Collection<Student> students) {
-        return sortStudentsList(students, Student::compareTo);
+        return sortStudents(students, Student::compareTo);
     }
 
     @Override
     public List<Student> sortStudentsByName(Collection<Student> students) {
-        return sortStudentsList(students, FULL_NAME_CMP);
+        return sortStudents(students, FULL_NAME_COMPARATOR);
     }
 
     @Override
