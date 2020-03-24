@@ -1,7 +1,7 @@
 package ru.ifmo.rain.boger.concurrent;
 
 import info.kgeorgiy.java.advanced.concurrent.ListIP;
-import info.kgeorgiy.java.advanced.concurrent.ScalarIP;
+import info.kgeorgiy.java.advanced.mapper.ParallelMapper;
 
 import java.util.*;
 import java.util.function.Function;
@@ -11,6 +11,18 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
 public class IterativeParallelism implements ListIP {
+
+    private final ParallelMapper mapper;
+
+    // Constructors
+
+    public IterativeParallelism() {
+        this.mapper = null;
+    }
+
+    public IterativeParallelism(ParallelMapper mapper) {
+        this.mapper = mapper;
+    }
 
     // Utility functions
 
@@ -33,14 +45,19 @@ public class IterativeParallelism implements ListIP {
             left = right;
         }
         // Creating with specified size - adding with list.add() may cause invalid order
-        List<R> result = new ArrayList<>(Collections.nCopies(streams.size(), null));
-        for (int i = 0; i < streams.size(); i++) {
-            final int targetIndex = i;
-            Thread thread = new Thread(() -> result.set(targetIndex, segmentFolder.apply(streams.get(targetIndex))));
-            threads.add(thread);
-            thread.start();
+        List<R> result;
+        if (mapper == null) {
+            result = new ArrayList<>(Collections.nCopies(streams.size(), null));
+            for (int i = 0; i < streams.size(); i++) {
+                final int targetIndex = i;
+                Thread thread = new Thread(() -> result.set(targetIndex, segmentFolder.apply(streams.get(targetIndex))));
+                threads.add(thread);
+                thread.start();
+            }
+            waitForSolution(threads);
+        } else {
+            result = mapper.map(segmentFolder, streams);
         }
-        waitForSolution(threads);
         return resultFolder.apply(result.stream());
     }
 
@@ -74,7 +91,7 @@ public class IterativeParallelism implements ListIP {
 
     @Override
     public <T> boolean any(int threads, List<? extends T> values, Predicate<? super T> predicate) throws InterruptedException {
-        return !all(threads, values, value -> !predicate.test(value));
+        return !all(threads, values, predicate.negate());
     }
 
     @Override
