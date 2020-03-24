@@ -1,6 +1,6 @@
 package ru.ifmo.rain.boger.concurrent;
 
-import info.kgeorgiy.java.advanced.concurrent.ListIP;
+import info.kgeorgiy.java.advanced.concurrent.AdvancedIP;
 import info.kgeorgiy.java.advanced.mapper.ParallelMapper;
 
 import java.util.*;
@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
-public class IterativeParallelism implements ListIP {
+public class IterativeParallelism implements AdvancedIP {
 
     private final ParallelMapper mapper;
 
@@ -26,15 +26,15 @@ public class IterativeParallelism implements ListIP {
 
     // Utility functions
 
-    private <T, R> R reduce(final int threadsNum, final List<? extends T> values,
-                            final Function<Stream<? extends T>, ? extends R> segmentFolder,
-                            final Function<Stream<? extends R>, ? extends R> resultFolder) throws InterruptedException {
+    private <T, T2, R> R reduce(final int threadsNum, final List<T> values,
+                                final Function<Stream<T>, T2> segmentFolder,
+                                final Function<Stream<T2>, R> resultFolder) throws InterruptedException {
         if (threadsNum <= 0) {
             throw new IllegalArgumentException("Number of threads must be greater or equal than 1");
         }
         final int blockSize = values.size() / threadsNum;
         final int remainderSize = values.size() % threadsNum;
-        List<Stream<? extends T>> streams = new ArrayList<>();
+        List<Stream<T>> streams = new ArrayList<>();
         List<Thread> threads = new ArrayList<>();
         int left = 0;
         for (int i = 0; i < threadsNum; i++) {
@@ -45,7 +45,7 @@ public class IterativeParallelism implements ListIP {
             left = right;
         }
         // Creating with specified size - adding with list.add() may cause invalid order
-        List<R> result;
+        List<T2> result;
         if (mapper == null) {
             result = new ArrayList<>(Collections.nCopies(streams.size(), null));
             for (int i = 0; i < streams.size(); i++) {
@@ -68,6 +68,14 @@ public class IterativeParallelism implements ListIP {
         }
     }
 
+    private <T, R> R makeReduction(final Stream<T> stream, final Monoid<R> monoid, final Function<T, R> mapper) {
+        return stream.map(mapper).reduce(monoid.getIdentity(), monoid.getOperator());
+    }
+
+    private <T> T getGenericMax(Stream<T> stream, Comparator<? super T> comparator) {
+        return stream.max(comparator).get();
+    }
+
     // Methods
 
     @Override
@@ -75,8 +83,8 @@ public class IterativeParallelism implements ListIP {
         if (values.isEmpty()) {
             throw new IllegalArgumentException("Values list must not be empty");
         }
-        final Function<Stream<? extends T>, ? extends T> maxFunction = stream -> stream.max(comparator).get();
-        return reduce(threads, values, maxFunction, maxFunction);
+        //final Function<Stream<T>, T> maxFunction = stream -> stream.max(comparator).get();
+        return reduce(threads, values, stream -> getGenericMax(stream, comparator), stream -> getGenericMax(stream, comparator));
     }
 
     @Override
@@ -110,5 +118,18 @@ public class IterativeParallelism implements ListIP {
     public <T, U> List<U> map(int threads, List<? extends T> values, Function<? super T, ? extends U> f) throws InterruptedException {
         return reduce(threads, values, stream -> stream.map(f).collect(Collectors.toList()),
                 listStream -> listStream.flatMap(Collection::stream).collect(Collectors.toList()));
+    }
+
+    @Override
+    public <T> T reduce(int threads, List<T> values, Monoid<T> monoid) throws InterruptedException {
+        //final Function<Stream<T>, T> reduction = stream -> stream.reduce(monoid.getIdentity(), monoid.getOperator());
+        return reduce(threads, values, stream -> makeReduction(stream, monoid, Function.identity()),
+                stream -> makeReduction(stream, monoid, Function.identity()));
+    }
+
+    @Override
+    public <T, R> R mapReduce(int threads, List<T> values, Function<T, R> lift, Monoid<R> monoid) throws InterruptedException {
+        return reduce(threads, values, stream -> makeReduction(stream, monoid, lift),
+                stream -> makeReduction(stream, monoid, Function.identity()));
     }
 }
