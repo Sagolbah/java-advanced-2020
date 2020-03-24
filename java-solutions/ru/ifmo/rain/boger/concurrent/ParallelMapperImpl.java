@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 public class ParallelMapperImpl implements ParallelMapper {
 
-    private static final int TASKS_LIMIT = 65536;
+    private static final int TASKS_LIMIT = 1024;
     private final List<Thread> workers;
     private final Queue<Runnable> tasks;
 
