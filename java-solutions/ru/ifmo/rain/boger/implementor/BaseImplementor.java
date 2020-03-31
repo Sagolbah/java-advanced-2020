@@ -439,8 +439,6 @@ public class BaseImplementor {
     }
 
 
-
-
     /**
      * Class used for representing {@link Method} in {@link Set} collections.
      */
@@ -448,11 +446,11 @@ public class BaseImplementor {
         /**
          * Base for hashcode calculation
          */
-        private static final int BASE = 37;
+        private static final long BASE = 37;
         /**
          * Modulo for hashcode calculation
          */
-        private static final int MOD = (int) (1e9 + 7);
+        private static final long MOD = (long) (1e9 + 7);
         /**
          * Encapsulated instance of {@link Method}
          */
@@ -493,8 +491,8 @@ public class BaseImplementor {
          * @return hashcode for stored {@link Method}
          */
         public int hashCode() {
-            return Arrays.hashCode(data.getParameterTypes()) + ((data.getName().hashCode()) * BASE) % MOD +
-                    (data.getReturnType().hashCode() * BASE * BASE) % MOD;
+            return (int) (Arrays.hashCode(data.getParameterTypes()) + ((data.getName().hashCode()) * BASE) % MOD +
+                    (data.getReturnType().hashCode() * BASE * BASE) % MOD);
         }
 
         /**
