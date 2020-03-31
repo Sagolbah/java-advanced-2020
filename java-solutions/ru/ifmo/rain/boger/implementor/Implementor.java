@@ -7,6 +7,12 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+
+/**
+ * Class for generating default implementations
+ *
+ * @author Daniil Boger (github.com/Sagolbah)
+ */
 public class Implementor extends BaseImplementor implements Impler {
 
     /**

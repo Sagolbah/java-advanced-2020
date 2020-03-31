@@ -8,6 +8,11 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Class for generating default implementations with .jar wrapping
+ *
+ * @author Daniil Boger (github.com/Sagolbah)
+ */
 public class JarImplementor extends BaseImplementor implements JarImpler {
 
     /**

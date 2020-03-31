@@ -28,7 +28,7 @@ import java.util.zip.ZipEntry;
 
 
 /**
- * Core class for classes that implement {@link JarImpler}
+ * Core implementor class with all implementing methods and tools.
  *
  * @author Daniil Boger (github.com/Sagolbah)
  */
