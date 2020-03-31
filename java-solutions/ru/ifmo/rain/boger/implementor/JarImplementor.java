@@ -2,12 +2,13 @@ package ru.ifmo.rain.boger.implementor;
 
 import info.kgeorgiy.java.advanced.implementor.Impler;
 import info.kgeorgiy.java.advanced.implementor.ImplerException;
+import info.kgeorgiy.java.advanced.implementor.JarImpler;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Implementor extends BaseImplementor implements Impler {
+public class JarImplementor extends BaseImplementor implements JarImpler {
 
     /**
      * Runs {@link Implementor} with given arguments:
@@ -17,8 +18,8 @@ public class Implementor extends BaseImplementor implements Impler {
      * @param args arguments for running {@link Implementor}
      */
     public static void main(String[] args) {
-        if (args == null || args.length != 2) {
-            System.out.println("Usage: java Implementor <classPath> <outputPath>");
+        if (args == null || args.length != 3) {
+            System.out.println("Usage: java JarImplementor -jar <classPath> <outputPath>");
             return;
         }
         for (String arg : args) {
@@ -28,8 +29,8 @@ public class Implementor extends BaseImplementor implements Impler {
             }
         }
         try {
-            if (args.length == 2) {
-                new Implementor().implement(Class.forName(args[0]), Paths.get(args[1]));
+            if (args.length == 3) {
+                new JarImplementor().implement(Class.forName(args[1]), Paths.get(args[2]));
             }
         } catch (ClassNotFoundException e) {
             System.err.println("Specified class not found");
@@ -39,4 +40,5 @@ public class Implementor extends BaseImplementor implements Impler {
             System.err.println(e.getMessage());
         }
     }
+
 }

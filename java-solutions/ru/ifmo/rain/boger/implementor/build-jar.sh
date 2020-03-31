@@ -12,7 +12,7 @@ mkdir "$output" 2>/dev/null
 cd ../../../../.. || exit
 
 # Already compiled modules: at lib
-javac --module-path "../../java-advanced-2020/lib":"../../java-advanced-2020/artifacts" "module-info.java" -d "$output" "$fullPath/Implementor.java" "$fullPath/CleaningVisitor.java"
+javac --module-path "../../java-advanced-2020/lib":"../../java-advanced-2020/artifacts" "module-info.java" -d "$output" "$fullPath/Implementor.java" "$fullPath/JarImplementor.java" "$fullPath/BaseImplementor.java" "$fullPath/CleaningVisitor.java"
 
 cd $fullPath/_build
 

@@ -9,4 +9,4 @@ linkAPI="https://docs.oracle.com/en/java/javase/11/docs/api/"
 
 # cd to repository root
 cd ../../../../../.. || exit
-javadoc -d "$output" --module-path "../java-advanced-2020/lib":"../java-advanced-2020/artifacts" -link "$linkAPI" -private -version -author "$fullPath/Implementor.java" "$fullPath/CleaningVisitor.java" "$supportDirectory/Impler.java" "$supportDirectory/JarImpler.java" "$supportDirectory/ImplerException.java"
+javadoc -d "$output" --module-path "../java-advanced-2020/lib":"../java-advanced-2020/artifacts" -link "$linkAPI" -private -version -author "$fullPath/BaseImplementor.java" "$fullPath/Implementor.java" "$fullPath/JarImplementor.java" "$fullPath/CleaningVisitor.java" "$supportDirectory/Impler.java" "$supportDirectory/JarImpler.java" "$supportDirectory/ImplerException.java"
