@@ -46,7 +46,7 @@ public class IterativeParallelism implements AdvancedIP {
      * Performs calculation on given values {@link List} with given number of threads,
      * using functions for subsegments calculating and subsegments merging.
      *
-     * @param threadsNum    number of threads
+     * @param threadCount    number of threads
      * @param values        values on which do calculation
      * @param segmentFolder function to apply on each values block
      * @param resultFolder  function to merge results on blocks into final result
@@ -56,18 +56,18 @@ public class IterativeParallelism implements AdvancedIP {
      * @return result of applying merging function on blocks, which were calculated with subsegment function
      * @throws InterruptedException if one of calculating threads was interrupted
      */
-    private <T, T2, R> R reduce(final int threadsNum, final List<T> values,
+    private <T, T2, R> R reduce(final int threadCount, final List<T> values,
                                 final Function<Stream<T>, T2> segmentFolder,
                                 final Function<Stream<T2>, R> resultFolder) throws InterruptedException {
-        if (threadsNum <= 0) {
+        if (threadCount <= 0) {
             throw new IllegalArgumentException("Number of threads must be greater or equal than 1");
         }
-        final int blockSize = values.size() / threadsNum;
-        final int remainderSize = values.size() % threadsNum;
+        final int blockSize = values.size() / threadCount;
+        final int remainderSize = values.size() % threadCount;
         List<Stream<T>> streams = new ArrayList<>();
         List<Thread> threads = new ArrayList<>();
         int left = 0;
-        for (int i = 0; i < threadsNum; i++) {
+        for (int i = 0; i < threadCount; i++) {
             int right = left + blockSize + (remainderSize > i ? 1 : 0);
             if (right != left) {
                 streams.add(values.subList(left, right).stream());
