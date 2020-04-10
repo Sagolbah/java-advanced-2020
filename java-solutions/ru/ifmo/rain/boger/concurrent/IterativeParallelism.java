@@ -56,9 +56,9 @@ public class IterativeParallelism implements AdvancedIP {
      * @return result of applying merging function on blocks, which were calculated with subsegment function
      * @throws InterruptedException if one of calculating threads was interrupted
      */
-    private <T, T2, R> R reduce(final int threadsCount, final List<T> values,
-                                final Function<Stream<T>, T2> segmentFolder,
-                                final Function<Stream<T2>, R> resultFolder) throws InterruptedException {
+    private <T, T2, R> R mapReduce(final int threadsCount, final List<T> values,
+                                   final Function<Stream<T>, T2> segmentFolder,
+                                   final Function<Stream<T2>, R> resultFolder) throws InterruptedException {
         if (threadsCount <= 0) {
             throw new IllegalArgumentException("Number of threads must be greater or equal than 1");
         }
@@ -93,20 +93,20 @@ public class IterativeParallelism implements AdvancedIP {
 
     private void waitForSolution(final List<Thread> threads) throws InterruptedException {
         // Waiting till all threads provide solution
-        InterruptedException exception = null;
+        InterruptedException mainInterruptedException = null;
         for (Thread thread : threads) {
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                if (exception != null) {
-                    exception.addSuppressed(e);
+                if (mainInterruptedException != null) {
+                    mainInterruptedException.addSuppressed(e);
                 } else {
-                    exception = e;
+                    mainInterruptedException = e;
                 }
             }
         }
-        if (exception != null) {
-            throw exception;
+        if (mainInterruptedException != null) {
+            throw mainInterruptedException;
         }
     }
 
@@ -126,7 +126,7 @@ public class IterativeParallelism implements AdvancedIP {
             throw new IllegalArgumentException("Values list must not be empty");
         }
         //final Function<Stream<T>, T> maxFunction = stream -> stream.max(comparator).get();
-        return reduce(threads, values, stream -> getMax(stream, comparator), stream -> getMax(stream, comparator));
+        return mapReduce(threads, values, stream -> getMax(stream, comparator), stream -> getMax(stream, comparator));
     }
 
     @Override
@@ -136,7 +136,7 @@ public class IterativeParallelism implements AdvancedIP {
 
     @Override
     public <T> boolean all(int threads, List<? extends T> values, Predicate<? super T> predicate) throws InterruptedException {
-        return reduce(threads, values, stream -> stream.allMatch(predicate), stream -> stream.allMatch(Boolean::booleanValue));
+        return mapReduce(threads, values, stream -> stream.allMatch(predicate), stream -> stream.allMatch(Boolean::booleanValue));
     }
 
     @Override
@@ -146,32 +146,32 @@ public class IterativeParallelism implements AdvancedIP {
 
     @Override
     public String join(int threads, List<?> values) throws InterruptedException {
-        return reduce(threads, values, stream -> stream.map(Object::toString).collect(Collectors.joining()),
+        return mapReduce(threads, values, stream -> stream.map(Object::toString).collect(Collectors.joining()),
                 listStream -> listStream.collect(Collectors.joining()));
     }
 
     @Override
     public <T> List<T> filter(int threads, List<? extends T> values, Predicate<? super T> predicate) throws InterruptedException {
-        return reduce(threads, values, stream -> stream.filter(predicate).collect(Collectors.toList()),
+        return mapReduce(threads, values, stream -> stream.filter(predicate).collect(Collectors.toList()),
                 listStream -> listStream.flatMap(Collection::stream).collect(Collectors.toList()));
     }
 
     @Override
     public <T, U> List<U> map(int threads, List<? extends T> values, Function<? super T, ? extends U> f) throws InterruptedException {
-        return reduce(threads, values, stream -> stream.map(f).collect(Collectors.toList()),
+        return mapReduce(threads, values, stream -> stream.map(f).collect(Collectors.toList()),
                 listStream -> listStream.flatMap(Collection::stream).collect(Collectors.toList()));
     }
 
     @Override
     public <T> T reduce(int threads, List<T> values, Monoid<T> monoid) throws InterruptedException {
         //final Function<Stream<T>, T> reduction = stream -> stream.reduce(monoid.getIdentity(), monoid.getOperator());
-        return reduce(threads, values, stream -> makeReduction(stream, monoid, Function.identity()),
+        return mapReduce(threads, values, stream -> makeReduction(stream, monoid, Function.identity()),
                 stream -> makeReduction(stream, monoid, Function.identity()));
     }
 
     @Override
     public <T, R> R mapReduce(int threads, List<T> values, Function<T, R> lift, Monoid<R> monoid) throws InterruptedException {
-        return reduce(threads, values, stream -> makeReduction(stream, monoid, lift),
+        return mapReduce(threads, values, stream -> makeReduction(stream, monoid, lift),
                 stream -> makeReduction(stream, monoid, Function.identity()));
     }
 }
