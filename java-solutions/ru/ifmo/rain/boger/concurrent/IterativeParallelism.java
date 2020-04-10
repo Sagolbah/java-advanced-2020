@@ -72,7 +72,7 @@ public class IterativeParallelism implements AdvancedIP {
         return stream.map(mapper).reduce(monoid.getIdentity(), monoid.getOperator());
     }
 
-    private <T> T getGenericMax(Stream<T> stream, Comparator<? super T> comparator) {
+    private <T> T getMax(Stream<T> stream, Comparator<? super T> comparator) {
         return stream.max(comparator).get();
     }
 
@@ -84,7 +84,7 @@ public class IterativeParallelism implements AdvancedIP {
             throw new IllegalArgumentException("Values list must not be empty");
         }
         //final Function<Stream<T>, T> maxFunction = stream -> stream.max(comparator).get();
-        return reduce(threads, values, stream -> getGenericMax(stream, comparator), stream -> getGenericMax(stream, comparator));
+        return reduce(threads, values, stream -> getMax(stream, comparator), stream -> getMax(stream, comparator));
     }
 
     @Override
@@ -133,3 +133,4 @@ public class IterativeParallelism implements AdvancedIP {
                 stream -> makeReduction(stream, monoid, Function.identity()));
     }
 }
+
