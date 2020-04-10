@@ -51,7 +51,7 @@ public class IterativeParallelism implements AdvancedIP {
      * @param <T2> middle type for block result
      * @param <R> return type
      * @return result of applying merging function on blocks, which were calculated with subsegment function
-     * @throws InterruptedException
+     * @throws InterruptedException if one of calculating threads was interrupted
      */
     private <T, T2, R> R reduce(final int threadsNum, final List<T> values,
                                 final Function<Stream<T>, T2> segmentFolder,
