@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 /**
  * Implementation class for {@link AdvancedIP} interface
+ *
  * @author Daniil Boger (github.com/Sagolbah)
  */
 @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -32,6 +33,7 @@ public class IterativeParallelism implements AdvancedIP {
 
     /**
      * Constructor with custom mapper
+     *
      * @param mapper instance of {@link ParallelMapper} for mapping
      */
     public IterativeParallelism(ParallelMapper mapper) {
@@ -43,13 +45,14 @@ public class IterativeParallelism implements AdvancedIP {
     /**
      * Performs calculation on given values {@link List} with given number of threads,
      * using functions for subsegments calculating and subsegments merging.
-     * @param threadsNum number of threads
-     * @param values values on which do calculation
+     *
+     * @param threadsNum    number of threads
+     * @param values        values on which do calculation
      * @param segmentFolder function to apply on each values block
-     * @param resultFolder function to merge results on blocks into final result
-     * @param <T> type of given values
-     * @param <T2> middle type for block result
-     * @param <R> return type
+     * @param resultFolder  function to merge results on blocks into final result
+     * @param <T>           type of given values
+     * @param <T2>          middle type for block result
+     * @param <R>           return type
      * @return result of applying merging function on blocks, which were calculated with subsegment function
      * @throws InterruptedException if one of calculating threads was interrupted
      */
