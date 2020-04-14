@@ -176,4 +176,3 @@ public class IterativeParallelism implements AdvancedIP {
                 stream -> makeReduction(stream, monoid, Function.identity()));
     }
 }
-
