@@ -56,11 +56,12 @@ public class IterativeParallelism implements AdvancedIP {
      * @return result of applying merging function on blocks, which were calculated with subsegment function
      * @throws InterruptedException if one of calculating threads was interrupted
      */
-    private <T, T2, R> R mapReduce(final int threadsCount, final List<T> values,
+    private <T, T2, R> R mapReduce(int threadsCount, final List<T> values,
                                    final Function<Stream<T>, T2> segmentFolder,
                                    final Function<Stream<T2>, R> resultFolder) throws InterruptedException {
+        threadsCount = Math.min(values.size(), threadsCount);
         if (threadsCount <= 0) {
-            throw new IllegalArgumentException("Number of threads must be greater or equal than 1");
+            throw new IllegalArgumentException("Number of threads and argument size must be greater or equal than 1");
         }
         final int blockSize = values.size() / threadsCount;
         final int remainder = values.size() % threadsCount;
