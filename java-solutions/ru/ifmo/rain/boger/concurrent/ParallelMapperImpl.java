@@ -54,10 +54,10 @@ public class ParallelMapperImpl implements ParallelMapper {
     public <T, R> List<R> map(Function<? super T, ? extends R> f, List<? extends T> args) throws InterruptedException {
         ResultList<R> result = new ResultList<>(args.size());
         for (int i = 0; i < args.size(); i++) {
-            final int location = i;
+            final int index = i;
             addTask(() -> {
                 try {
-                    result.set(location, f.apply(args.get(location)));
+                    result.set(index, f.apply(args.get(index)));
                 } catch (RuntimeException e) {
                     result.setException(e);
                 }
@@ -113,6 +113,4 @@ public class ParallelMapperImpl implements ParallelMapper {
             }
         }
     }
-
 }
-
