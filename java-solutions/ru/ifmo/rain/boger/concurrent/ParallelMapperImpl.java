@@ -21,8 +21,6 @@ public class ParallelMapperImpl implements ParallelMapper {
                 }
             } catch (InterruptedException e) {
                 // No operations.
-            } finally {
-                Thread.currentThread().interrupt();
             }
         })).limit(threads).collect(Collectors.toList());
         tasks = new ArrayDeque<>();
