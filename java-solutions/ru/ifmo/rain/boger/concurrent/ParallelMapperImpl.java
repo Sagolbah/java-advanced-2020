@@ -13,7 +13,10 @@ public class ParallelMapperImpl implements ParallelMapper {
     private final List<Thread> workers;
     private final Queue<Runnable> tasks;
 
-    public ParallelMapperImpl(int threads) {
+    public ParallelMapperImpl(int threadCount) {
+        if (threadCount < 1) {
+            throw new IllegalArgumentException("Number of threads must be positive");
+        }
         workers = Stream.generate(() -> new Thread(() -> {
             try {
                 while (!Thread.interrupted()) {
@@ -22,7 +25,7 @@ public class ParallelMapperImpl implements ParallelMapper {
             } catch (InterruptedException e) {
                 // No operations.
             }
-        })).limit(threads).collect(Collectors.toList());
+        })).limit(threadCount).collect(Collectors.toList());
         tasks = new ArrayDeque<>();
         workers.forEach(Thread::start);
     }
@@ -112,3 +115,4 @@ public class ParallelMapperImpl implements ParallelMapper {
     }
 
 }
+
