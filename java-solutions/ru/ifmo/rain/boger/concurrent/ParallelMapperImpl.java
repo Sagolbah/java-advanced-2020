@@ -110,7 +110,11 @@ public class ParallelMapperImpl implements ParallelMapper {
         }
 
         public synchronized void setException(RuntimeException e) {
-            exception = e;
+            if (exception != null) {
+                exception.addSuppressed(e);
+            } else {
+                exception = e;
+            }
         }
     }
 
