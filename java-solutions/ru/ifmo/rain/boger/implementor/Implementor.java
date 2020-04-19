@@ -34,9 +34,7 @@ public class Implementor extends BaseImplementor implements Impler {
             }
         }
         try {
-            if (args.length == 2) {
                 new Implementor().implement(Class.forName(args[0]), Paths.get(args[1]));
-            }
         } catch (ClassNotFoundException e) {
             System.err.println("Specified class not found");
         } catch (InvalidPathException e) {

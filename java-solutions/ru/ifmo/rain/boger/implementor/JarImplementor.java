@@ -34,9 +34,7 @@ public class JarImplementor extends BaseImplementor implements JarImpler {
             }
         }
         try {
-            if (args.length == 3) {
-                new JarImplementor().implement(Class.forName(args[1]), Paths.get(args[2]));
-            }
+            new JarImplementor().implementJar(Class.forName(args[1]), Paths.get(args[2]));
         } catch (ClassNotFoundException e) {
             System.err.println("Specified class not found");
         } catch (InvalidPathException e) {

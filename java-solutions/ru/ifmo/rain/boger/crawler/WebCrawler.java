@@ -13,9 +13,11 @@ public class WebCrawler implements Crawler {
     private final Downloader downloader;
     private final ExecutorService downloadersThreadPool;
     private final ExecutorService extractorsThreadPool;
+    private final ConcurrentMap<String, HostMonitor> hostsData;
     private final int perHost;
 
     public WebCrawler(Downloader downloader, int downloaders, int extractors, int perHost) {
+        this.hostsData = new ConcurrentHashMap<>();
         this.downloader = downloader;
         downloadersThreadPool = Executors.newFixedThreadPool(downloaders);
         extractorsThreadPool = Executors.newFixedThreadPool(extractors);
@@ -29,6 +31,7 @@ public class WebCrawler implements Crawler {
         Set<String> visited = ConcurrentHashMap.newKeySet();
         Set<String> successes = ConcurrentHashMap.newKeySet();
         Map<String, IOException> fails = new ConcurrentHashMap<>();
+        visited.add(url);
         downloadWithBFS(url, successes, fails, visited, depth, phaser);
         phaser.arriveAndAwaitAdvance();
         List<String> successList = new ArrayList<>(successes);
@@ -43,39 +46,38 @@ public class WebCrawler implements Crawler {
 
     // Utility functions
 
-    private void extractAndRunBFS(Document document, Set<String> successes, Map<String, IOException> fails, Set<String> visited, int depth, Phaser phaser) {
-        try {
-            List<String> links = document.extractLinks();
-            for (final String link : links) {
-                if (!visited.contains(link)) {
-                    visited.add(link);
-                    downloadWithBFS(link, successes, fails, visited, depth, phaser);
-                }
-            }
-        } catch (IOException e) {
-            // No operations (Result says should only store downloading, not extraction fails?).
-        } finally {
-            phaser.arrive();
-        }
-    }
-
     private void downloadWithBFS(String url, Set<String> successes, Map<String, IOException> fails, Set<String> visited, int depth, Phaser phaser) {
-        phaser.register();
-        downloadersThreadPool.submit(() -> {
-            try {
-                Document result = downloader.download(url);
-                successes.add(url);
-                if (depth > 1) {
-                    // Should wait not only for downloads, but for extractions too.
-                    phaser.register();
-                    extractorsThreadPool.submit(() -> extractAndRunBFS(result, successes, fails, visited, depth - 1, phaser));
+        try {
+            String host = URLUtils.getHost(url);
+            HostMonitor monitor = hostsData.computeIfAbsent(host, h -> new HostMonitor(perHost, downloadersThreadPool));
+            phaser.register();
+            monitor.addTask(() -> {
+                try {
+                    Document result = downloader.download(url);
+                    successes.add(url);
+                    if (depth > 1) {
+                        phaser.register();
+                        extractorsThreadPool.submit(() -> {
+                            try {
+                                result.extractLinks().stream().filter(visited::add).forEach(
+                                        link -> downloadWithBFS(link, successes, fails, visited, depth - 1, phaser));
+                            } catch (IOException ignored) {
+                                // No operations.
+                            } finally {
+                                phaser.arrive();
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+                    fails.put(url, e);
+                } finally {
+                    phaser.arrive();
+                    monitor.finishTask();
                 }
-            } catch (IOException e) {
-                fails.put(url, e);
-            } finally {
-                phaser.arrive();
-            }
-        });
+            });
+        } catch (MalformedURLException e) {
+            fails.put(url, e);
+        }
     }
 
     public static void main(String[] args) {
@@ -94,7 +96,7 @@ public class WebCrawler implements Crawler {
             try {
                 numberArguments[i - 1] = Integer.parseInt(args[i]);
             } catch (NumberFormatException e) {
-                System.out.println("<downloaders>, <extractors> ans <perHost> must be numbers");
+                System.out.println("<depth>, <downloaders>, <extractors> and <perHost> must be numbers");
             }
         }
         try (WebCrawler crawler = new WebCrawler(new CachingDownloader(), numberArguments[1], numberArguments[2], numberArguments[3])) {
@@ -103,5 +105,6 @@ public class WebCrawler implements Crawler {
             System.out.println("Can't initialize downloader");
         }
     }
+
 
 }
