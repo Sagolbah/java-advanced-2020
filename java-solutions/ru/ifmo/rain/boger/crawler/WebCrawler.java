@@ -80,8 +80,15 @@ public class WebCrawler implements Crawler {
         }
     }
 
+    private static int wrapArgument(String[] args, int defaultValue, int index) {
+        if (args.length <= index) {
+            return defaultValue;
+        }
+        return Integer.parseInt(args[index]);
+    }
+
     public static void main(String[] args) {
-        if (args == null || args.length != 5) {
+        if (args == null || args.length == 0) {
             System.out.println("Usage: WebCrawler <url> <depth> <downloaders> <extractors> <perHost>");
             return;
         }
@@ -91,20 +98,18 @@ public class WebCrawler implements Crawler {
                 return;
             }
         }
-        int[] numberArguments = new int[4];
-        for (int i = 1; i < 5; i++) {
-            try {
-                numberArguments[i - 1] = Integer.parseInt(args[i]);
-            } catch (NumberFormatException e) {
-                System.out.println("<depth>, <downloaders>, <extractors> and <perHost> must be numbers");
+        try {
+            int depth = wrapArgument(args, 1, 1);
+            int downloaders = wrapArgument(args, 1, 2);
+            int extractors = wrapArgument(args, 1, 3);
+            int perHost = wrapArgument(args, 16, 4);
+            try (WebCrawler crawler = new WebCrawler(new CachingDownloader(), downloaders, extractors, perHost)) {
+                crawler.download(args[0], depth);
+            } catch (IOException e) {
+                System.out.println("Can't initialize downloader");
             }
-        }
-        try (WebCrawler crawler = new WebCrawler(new CachingDownloader(), numberArguments[1], numberArguments[2], numberArguments[3])) {
-            crawler.download(args[0], numberArguments[0]);
-        } catch (IOException e) {
-            System.out.println("Can't initialize downloader");
+        } catch (NumberFormatException e) {
+            System.out.println("Arguments must be numbers");
         }
     }
-
-
 }
