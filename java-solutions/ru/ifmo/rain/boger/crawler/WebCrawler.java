@@ -11,15 +11,15 @@ public class WebCrawler implements Crawler {
     private final Downloader downloader;
     private final ExecutorService downloadersThreadPool;
     private final ExecutorService extractorsThreadPool;
-    private final ConcurrentMap<String, HostMonitor> hostsData;
     private final int perHost;
+    private final ConcurrentMap<String, HostMonitor> hostsData;
 
     public WebCrawler(Downloader downloader, int downloaders, int extractors, int perHost) {
-        this.hostsData = new ConcurrentHashMap<>();
         this.downloader = downloader;
         downloadersThreadPool = Executors.newFixedThreadPool(downloaders);
         extractorsThreadPool = Executors.newFixedThreadPool(extractors);
         this.perHost = perHost;
+        this.hostsData = new ConcurrentHashMap<>();
     }
 
     @Override
