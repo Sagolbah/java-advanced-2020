@@ -4,8 +4,6 @@ import info.kgeorgiy.java.advanced.crawler.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -32,7 +30,7 @@ public class WebCrawler implements Crawler {
         Set<String> successes = ConcurrentHashMap.newKeySet();
         Map<String, IOException> fails = new ConcurrentHashMap<>();
         visited.add(url);
-        downloadWithBFS(url, successes, fails, visited, depth, phaser);
+        downloadRecursively(url, successes, fails, visited, depth, phaser);
         phaser.arriveAndAwaitAdvance();
         List<String> successList = new ArrayList<>(successes);
         return new Result(successList, fails);
@@ -46,7 +44,7 @@ public class WebCrawler implements Crawler {
 
     // Utility functions
 
-    private void downloadWithBFS(String url, Set<String> successes, Map<String, IOException> fails, Set<String> visited, int depth, Phaser phaser) {
+    private void downloadRecursively(String url, Set<String> successes, Map<String, IOException> fails, Set<String> visited, int depth, Phaser phaser) {
         try {
             String host = URLUtils.getHost(url);
             HostMonitor monitor = hostsData.computeIfAbsent(host, h -> new HostMonitor(perHost, downloadersThreadPool));
@@ -60,7 +58,7 @@ public class WebCrawler implements Crawler {
                         extractorsThreadPool.submit(() -> {
                             try {
                                 result.extractLinks().stream().filter(visited::add).forEach(
-                                        link -> downloadWithBFS(link, successes, fails, visited, depth - 1, phaser));
+                                        link -> downloadRecursively(link, successes, fails, visited, depth - 1, phaser));
                             } catch (IOException ignored) {
                                 // No operations.
                             } finally {
