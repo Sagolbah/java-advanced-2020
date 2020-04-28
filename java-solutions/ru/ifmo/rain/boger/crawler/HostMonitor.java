@@ -20,18 +20,28 @@ public class HostMonitor {
     public synchronized void addTask(final Runnable task) {
         if (activeTasks < limit) {
             activeTasks++;
-            downloadersThreadPool.submit(task);
+            submitTask(task);
         } else {
             waitingTasks.add(task);
         }
     }
 
-    public synchronized void finishTask() {
+    private synchronized void finishTask() {
         if (waitingTasks.peek() == null) {
             activeTasks--;
         } else {
-            downloadersThreadPool.submit(waitingTasks.poll());
+            submitTask(waitingTasks.poll());
         }
+    }
+
+    private synchronized void submitTask(final Runnable task){
+        downloadersThreadPool.submit(() -> {
+            try {
+                task.run();
+            } finally {
+                finishTask();
+            }
+        });
     }
 
 }

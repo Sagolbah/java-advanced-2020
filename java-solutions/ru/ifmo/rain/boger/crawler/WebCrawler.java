@@ -72,7 +72,6 @@ public class WebCrawler implements Crawler {
                     fails.put(url, e);
                 } finally {
                     phaser.arrive();
-                    monitor.finishTask();
                 }
             });
         } catch (MalformedURLException e) {
