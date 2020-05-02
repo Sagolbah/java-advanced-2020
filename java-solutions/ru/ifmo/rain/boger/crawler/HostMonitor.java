@@ -6,8 +6,8 @@ import java.util.concurrent.ExecutorService;
 
 public class HostMonitor {
     private int activeTasks;
-    private int limit;
-    private Queue<Runnable> waitingTasks;
+    private final int limit;
+    private final Queue<Runnable> waitingTasks;
     private final ExecutorService downloadersThreadPool;
 
     public HostMonitor(int limit, ExecutorService pool) {
