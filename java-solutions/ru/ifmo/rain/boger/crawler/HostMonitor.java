@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
+// Class for perHost restriction monitoring.
 public class HostMonitor {
     private int activeTasks;
     private final int limit;
