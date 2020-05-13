@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 
 public class HelloUDPClient implements HelloClient {
     @Override
-    public void run(String host, int port, String prefix, int threadsCount, int requestsCount) {
+    public void run(String host, int port, String prefix, int threadCount, int requestCount) {
         SocketAddress address;
         try {
             address = new InetSocketAddress(InetAddress.getByName(host), port);
@@ -19,12 +19,14 @@ public class HelloUDPClient implements HelloClient {
             System.err.println("Unknown host: " + host);
             return;
         }
-        final ExecutorService sendersThreadPool = Executors.newFixedThreadPool(threadsCount);
-        final CountDownLatch latch = new CountDownLatch(threadsCount);
-        for (int i = 0; i < threadsCount; i++) {
+
+        final ExecutorService sendersThreadPool = Executors.newFixedThreadPool(threadCount);
+        final CountDownLatch latch = new CountDownLatch(threadCount);
+        for (int i = 0; i < threadCount; i++) {
             final int finalI = i;
-            sendersThreadPool.submit(() -> senderTask(prefix, finalI, requestsCount, address, latch));
+            sendersThreadPool.submit(() -> send(prefix, finalI, requestCount, address, latch));
         }
+
         try {
             latch.await();
         } catch (InterruptedException ignored) {
@@ -34,7 +36,7 @@ public class HelloUDPClient implements HelloClient {
         }
     }
 
-    private void senderTask(String prefix, int threadId, int requestsCount, SocketAddress address, CountDownLatch latch) {
+    private void send(String prefix, int threadId, int requestsCount, SocketAddress address, CountDownLatch latch) {
         try (DatagramSocket socket = new DatagramSocket()) {
             socket.setSoTimeout(500);
             DatagramPacket requestPacket = new DatagramPacket(new byte[0], 0, address);
@@ -47,7 +49,7 @@ public class HelloUDPClient implements HelloClient {
                         socket.send(requestPacket);
                         System.out.println("Request sent: " + request);
                         socket.receive(responsePacket);
-                        String response = getStringFromPacket(responsePacket);
+                        String response = getString(responsePacket);
                         if (response.matches("[\\D]*" + threadId + "[\\D]*" + requestId + "[\\D]*")) {
                             System.out.println("Response received: " + response);
                             break;
@@ -64,7 +66,7 @@ public class HelloUDPClient implements HelloClient {
         }
     }
 
-    private String getStringFromPacket(final DatagramPacket packet) {
+    private String getString(final DatagramPacket packet) {
         return new String(packet.getData(), packet.getOffset(), packet.getLength(), StandardCharsets.UTF_8);
     }
 
@@ -90,5 +92,4 @@ public class HelloUDPClient implements HelloClient {
             System.out.println("<port>, <threads>, <requests in thread> arguments must be numbers");
         }
     }
-
 }
