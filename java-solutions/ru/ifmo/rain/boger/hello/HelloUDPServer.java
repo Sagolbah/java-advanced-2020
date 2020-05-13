@@ -15,12 +15,12 @@ public class HelloUDPServer implements HelloServer {
     private ExecutorService listeners;
 
     @Override
-    public void start(int port, int threads) {
+    public void start(int port, int threadsCount) {
         try {
             socket = new DatagramSocket(port);
-            listeners = Executors.newFixedThreadPool(threads);
+            listeners = Executors.newFixedThreadPool(threadsCount);
             final int packetSize = socket.getSendBufferSize();
-            for (int i = 0; i < threads; i++) {
+            for (int i = 0; i < threadsCount; i++) {
                 listeners.submit(() -> listen(packetSize));
             }
         } catch (SocketException ignored) {

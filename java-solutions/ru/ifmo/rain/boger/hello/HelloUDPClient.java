@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 
 public class HelloUDPClient implements HelloClient {
     @Override
-    public void run(String host, int port, String prefix, int threads, int requests) {
+    public void run(String host, int port, String prefix, int threadsCount, int requestsCount) {
         SocketAddress address;
         try {
             address = new InetSocketAddress(InetAddress.getByName(host), port);
@@ -19,11 +19,11 @@ public class HelloUDPClient implements HelloClient {
             System.err.println("Unknown host: " + host);
             return;
         }
-        final ExecutorService sendersThreadPool = Executors.newFixedThreadPool(threads);
-        final CountDownLatch latch = new CountDownLatch(threads);
-        for (int i = 0; i < threads; i++) {
+        final ExecutorService sendersThreadPool = Executors.newFixedThreadPool(threadsCount);
+        final CountDownLatch latch = new CountDownLatch(threadsCount);
+        for (int i = 0; i < threadsCount; i++) {
             final int finalI = i;
-            sendersThreadPool.submit(() -> senderTask(prefix, finalI, requests, address, latch));
+            sendersThreadPool.submit(() -> senderTask(prefix, finalI, requestsCount, address, latch));
         }
         try {
             latch.await();
@@ -34,12 +34,12 @@ public class HelloUDPClient implements HelloClient {
         }
     }
 
-    private void senderTask(String prefix, int threadId, int requests, SocketAddress address, CountDownLatch latch) {
+    private void senderTask(String prefix, int threadId, int requestsCount, SocketAddress address, CountDownLatch latch) {
         try (DatagramSocket socket = new DatagramSocket()) {
             socket.setSoTimeout(500);
             DatagramPacket requestPacket = new DatagramPacket(new byte[0], 0, address);
             DatagramPacket responsePacket = new DatagramPacket(new byte[socket.getReceiveBufferSize()], socket.getReceiveBufferSize());
-            for (int requestId = 0; requestId < requests; requestId++) {
+            for (int requestId = 0; requestId < requestsCount; requestId++) {
                 String request = getRequestString(prefix, threadId, requestId);
                 requestPacket.setData(request.getBytes(StandardCharsets.UTF_8));
                 while (!socket.isClosed()) {
