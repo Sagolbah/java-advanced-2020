@@ -51,8 +51,6 @@ public class HelloUDPClient implements HelloClient {
                         if (response.matches("[\\D]*" + threadId + "[\\D]*" + requestId + "[\\D]*")) {
                             System.out.println("Response received: " + response);
                             break;
-                        } else {
-                            System.out.println("Incorrect response received: " + response);
                         }
                     } catch (IOException e) {
                         System.err.println("Processing failed: " + e.getMessage());
