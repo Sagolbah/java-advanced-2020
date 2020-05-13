@@ -51,4 +51,20 @@ public class HelloUDPServer implements HelloServer {
         listeners.shutdownNow();
         socket.close();
     }
+
+    public static void main(String[] args) {
+        if (args == null || args.length != 2) {
+            System.out.println("Usage: java HelloUDPServer <port> <threads>");
+            return;
+        }
+        if (args[0] == null || args[1] == null) {
+            System.out.println("Arguments must be non-null");
+            return;
+        }
+        try (HelloUDPServer server = new HelloUDPServer()) {
+            server.start(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+        } catch (NumberFormatException e) {
+            System.out.println("<port>, <threads> arguments must be numbers");
+        }
+    }
 }
