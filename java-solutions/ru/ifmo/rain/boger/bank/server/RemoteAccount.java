@@ -1,4 +1,6 @@
-package ru.ifmo.rain.boger.bank;
+package ru.ifmo.rain.boger.bank.server;
+
+import ru.ifmo.rain.boger.bank.common.Account;
 
 public class RemoteAccount implements Account {
     private final String id;

@@ -1,5 +1,8 @@
-package ru.ifmo.rain.boger.bank;
+package ru.ifmo.rain.boger.bank.server;
 
+
+import ru.ifmo.rain.boger.bank.common.Account;
+import ru.ifmo.rain.boger.bank.common.LocalPerson;
 
 import java.util.Map;
 

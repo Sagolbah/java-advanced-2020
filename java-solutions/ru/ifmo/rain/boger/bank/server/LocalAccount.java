@@ -1,7 +1,8 @@
-package ru.ifmo.rain.boger.bank;
+package ru.ifmo.rain.boger.bank.server;
+
+import ru.ifmo.rain.boger.bank.common.Account;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
 
 public class LocalAccount implements Account, Serializable {
     private final String id;

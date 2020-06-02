@@ -1,4 +1,6 @@
-package ru.ifmo.rain.boger.bank;
+package ru.ifmo.rain.boger.bank.server;
+
+import ru.ifmo.rain.boger.bank.common.Bank;
 
 import java.rmi.*;
 import java.rmi.server.*;

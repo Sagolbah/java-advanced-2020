@@ -1,7 +1,7 @@
 package ru.ifmo.rain.boger.bank.testing;
 
-import ru.ifmo.rain.boger.bank.Bank;
-import ru.ifmo.rain.boger.bank.RemoteBank;
+import ru.ifmo.rain.boger.bank.common.Bank;
+import ru.ifmo.rain.boger.bank.server.RemoteBank;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -30,13 +30,5 @@ public final class TestingUtils {
         return LocateRegistry.createRegistry(registryPort);
     }
 
-    public static void unexportRegistry(final Registry registry) {
-        try {
-            UnicastRemoteObject.unexportObject(registry, true);
-        } catch (NoSuchObjectException e) {
-            System.err.println("Could not unexport object " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
 }

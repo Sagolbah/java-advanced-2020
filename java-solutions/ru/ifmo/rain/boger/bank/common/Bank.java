@@ -1,9 +1,8 @@
-package ru.ifmo.rain.boger.bank;
+package ru.ifmo.rain.boger.bank.common;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Map;
-import java.util.Set;
 
 public interface Bank extends Remote {
 

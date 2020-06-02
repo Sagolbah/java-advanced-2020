@@ -6,13 +6,12 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import ru.ifmo.rain.boger.bank.Account;
-import ru.ifmo.rain.boger.bank.Bank;
-import ru.ifmo.rain.boger.bank.Client;
+import ru.ifmo.rain.boger.bank.common.Account;
+import ru.ifmo.rain.boger.bank.common.Bank;
+import ru.ifmo.rain.boger.bank.client.Client;
 
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -44,7 +43,6 @@ public class TestClient {
         } catch (NoSuchObjectException e) {
             System.err.println("Could not unexport bank " + e.getMessage());
         }
-        TestingUtils.unexportRegistry(registry);
     }
 
     @Test

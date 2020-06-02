@@ -1,8 +1,9 @@
-package ru.ifmo.rain.boger.bank;
+package ru.ifmo.rain.boger.bank.server;
 
+
+import ru.ifmo.rain.boger.bank.common.Person;
 
 import java.rmi.Remote;
-import java.util.Map;
 
 public class RemotePerson implements Remote, Person {
     private final String firstName;

@@ -1,4 +1,8 @@
-package ru.ifmo.rain.boger.bank;
+package ru.ifmo.rain.boger.bank.client;
+
+import ru.ifmo.rain.boger.bank.common.Account;
+import ru.ifmo.rain.boger.bank.common.Bank;
+import ru.ifmo.rain.boger.bank.common.Person;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;

@@ -2,13 +2,12 @@ package ru.ifmo.rain.boger.bank.testing;
 
 import org.junit.*;
 import org.junit.runners.MethodSorters;
-import ru.ifmo.rain.boger.bank.Account;
-import ru.ifmo.rain.boger.bank.Bank;
-import ru.ifmo.rain.boger.bank.Person;
+import ru.ifmo.rain.boger.bank.common.Account;
+import ru.ifmo.rain.boger.bank.common.Bank;
+import ru.ifmo.rain.boger.bank.common.Person;
 
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.CountDownLatch;
@@ -42,7 +41,6 @@ public class TestRemoteBank {
         } catch (NoSuchObjectException e) {
             System.err.println("Could not unexport bank " + e.getMessage());
         }
-        TestingUtils.unexportRegistry(registry);
     }
 
     @Before
