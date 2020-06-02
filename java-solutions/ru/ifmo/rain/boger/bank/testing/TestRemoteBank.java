@@ -147,6 +147,7 @@ public class TestRemoteBank {
         } catch (InterruptedException e) {
             // No operations.
         }
+        threadPool.shutdownNow();
         for (int i = 0; i < 5000; i++) {
             Person person = bank.getRemotePerson("test" + i);
             assertEquals(bank.getPersonAccounts(person).get("sub" + i).getAmount(), i);

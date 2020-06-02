@@ -23,7 +23,6 @@ public class TestClient {
     public static final int DEFAULT_REGISTRY_PORT = 1099;
     private static final int BANK_PORT = 8888;
     private static Registry registry;
-    private static Client client;
     private static Bank bank = null;
 
     @BeforeClass
