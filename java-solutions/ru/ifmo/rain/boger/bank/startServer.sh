@@ -1,5 +1,6 @@
 #!/bin/bash
-export CLASSPATH=..
+
+cd "../../../../.." || exit
 
 rmiregistry &
-java Server
+java ru.ifmo.rain.boger.bank.Server
