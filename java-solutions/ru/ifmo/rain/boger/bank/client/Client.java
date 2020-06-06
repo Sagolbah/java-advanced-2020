@@ -31,16 +31,7 @@ public class Client {
             System.out.println("Money change must be a number");
             return;
         }
-        final Bank bank;
-        try {
-            bank = (Bank) Naming.lookup("//localhost/bank");
-        } catch (final NotBoundException e) {
-            System.out.println("Bank is not bound");
-            return;
-        } catch (final MalformedURLException e) {
-            System.out.println("Bank URL is invalid");
-            return;
-        }
+        final Bank bank = getBank();
         System.out.println("Getting account with passport " + passport);
         Person person = bank.getRemotePerson(passport);
         if (person == null) {
@@ -63,5 +54,16 @@ public class Client {
         System.out.println("Adding money");
         account.setAmount(account.getAmount() + moneyChange);
         System.out.println("New amount: " + account.getAmount());
+    }
+
+    private static Bank getBank() throws RemoteException {
+        try {
+            return (Bank) Naming.lookup("//localhost/bank");
+        } catch (final NotBoundException e) {
+            System.out.println("Bank is not bound");
+        } catch (final MalformedURLException e) {
+            System.out.println("Bank URL is invalid");
+        }
+        return null;
     }
 }
