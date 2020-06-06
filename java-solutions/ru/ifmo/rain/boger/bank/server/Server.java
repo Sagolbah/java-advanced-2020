@@ -8,6 +8,7 @@ import java.net.*;
 
 public class Server {
     private static final int PORT = 8888;
+
     public static void main(final String... args) {
         final Bank bank = new RemoteBank(PORT);
         try {
