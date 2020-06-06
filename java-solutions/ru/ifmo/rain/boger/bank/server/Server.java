@@ -7,7 +7,7 @@ import java.rmi.server.*;
 import java.net.*;
 
 public class Server {
-    private final static int PORT = 8888;
+    private static final int PORT = 8888;
     public static void main(final String... args) {
         final Bank bank = new RemoteBank(PORT);
         try {

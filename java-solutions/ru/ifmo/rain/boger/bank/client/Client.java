@@ -11,19 +11,17 @@ import java.rmi.RemoteException;
 
 public class Client {
     public static void main(final String... args) throws RemoteException {
-        if (args == null || args.length != 5) {
-            System.out.println("Usage: Client <first name> <last name> <passport> <account ID> <money change>");
-            return;
-        }
         try {
             runClient(args);
         } catch (ClientMainException e) {
             System.err.println("Error: " + e.getMessage());
         }
-
     }
 
-    private static void runClient(String[] args) throws RemoteException, ClientMainException {
+    private synchronized static void runClient(String[] args) throws RemoteException, ClientMainException {
+        if (args == null || args.length != 5) {
+            throw new ClientMainException("Incorrect arguments. Usage: Client <first name> <last name> <passport> <account ID> <money change>");
+        }
         for (String s : args) {
             if (s == null) {
                 throw new ClientMainException("All arguments must not be null");
@@ -63,14 +61,13 @@ public class Client {
         System.out.println("New amount: " + account.getAmount());
     }
 
-    private static Bank getBank() throws RemoteException {
+    private static Bank getBank() throws RemoteException, ClientMainException {
         try {
             return (Bank) Naming.lookup("//localhost/bank");
         } catch (final NotBoundException e) {
-            System.out.println("Bank is not bound");
+            throw new ClientMainException("Bank is not bound");
         } catch (final MalformedURLException e) {
-            System.out.println("Bank URL is invalid");
+            throw new ClientMainException("Bank URL is invalid");
         }
-        return null;
     }
 }
