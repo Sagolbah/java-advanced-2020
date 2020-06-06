@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd "../../../../../.." || exit
+cd "../java-solutions" || exit
 
 rmiregistry & 
 

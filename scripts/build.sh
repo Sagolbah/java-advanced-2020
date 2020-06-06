@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # cd to java-solutions
-cd "../../../../../.." || exit
+cd "../java-solutions" || exit
 
 fullPath="ru/ifmo/rain/boger/bank"
 
