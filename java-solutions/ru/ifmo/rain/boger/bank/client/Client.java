@@ -15,9 +15,18 @@ public class Client {
             System.out.println("Usage: Client <first name> <last name> <passport> <account ID> <money change>");
             return;
         }
+        try {
+            runClient(args);
+        } catch (ClientMainException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+    }
+
+    private static void runClient(String[] args) throws RemoteException, ClientMainException {
         for (String s : args) {
             if (s == null) {
-                System.out.println("All arguments must not be null");
+                throw new ClientMainException("All arguments must not be null");
             }
         }
         String firstName = args[0];
@@ -28,8 +37,7 @@ public class Client {
         try {
             moneyChange = Integer.parseInt(args[4]);
         } catch (NumberFormatException e) {
-            System.out.println("Money change must be a number");
-            return;
+            throw new ClientMainException("Money change must be a number");
         }
         final Bank bank = getBank();
         System.out.println("Getting account with passport " + passport);
@@ -40,8 +48,7 @@ public class Client {
         } else {
             if (!person.getFirstName().equals(firstName) || !person.getLastName().equals(lastName) ||
                     !person.getPassport().equals(passport)) {
-                System.out.println("Given person data is incorrect");
-                return;
+                throw new ClientMainException("Given person data is incorrect");
             }
         }
         System.out.println("Getting account with subID" + accountId);
