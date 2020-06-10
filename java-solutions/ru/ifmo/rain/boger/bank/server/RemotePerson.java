@@ -5,30 +5,25 @@ import ru.ifmo.rain.boger.bank.common.Person;
 
 import java.rmi.Remote;
 
-public class RemotePerson implements Remote, Person {
-    private final String firstName;
-    private final String lastName;
-    private final String passport;
+public class RemotePerson extends AbstractPerson implements Remote {
 
     @Override
     public String getFirstName() {
-        return firstName;
+        return super.getFirstName();
     }
 
     @Override
     public String getLastName() {
-        return lastName;
+        return super.getLastName();
     }
 
     @Override
     public String getPassport() {
-        return passport;
+        return super.getPassport();
     }
 
     public RemotePerson(String firstName, String lastName, String passport) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.passport = passport;
+        super(firstName, lastName, passport);
     }
 
 }

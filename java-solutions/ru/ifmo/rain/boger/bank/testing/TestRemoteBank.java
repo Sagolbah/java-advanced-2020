@@ -6,6 +6,7 @@ import ru.ifmo.rain.boger.bank.common.Account;
 import ru.ifmo.rain.boger.bank.common.Bank;
 import ru.ifmo.rain.boger.bank.common.Person;
 
+import java.rmi.Naming;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -13,6 +14,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -41,6 +43,7 @@ public class TestRemoteBank {
         } catch (NoSuchObjectException e) {
             System.err.println("Could not unexport bank " + e.getMessage());
         }
+        TestingUtils.unexportRegistry(registry);
     }
 
     @Before
@@ -98,7 +101,7 @@ public class TestRemoteBank {
     }
 
     @Test
-    public void test04_evilIdSearch() throws RemoteException {
+    public void test04_i18nIdSearch() throws RemoteException {
         final String arabicPassport = ":حَرَكِيَّةٌ";
         final String arabicSubId = "نحن";
         Person person = createRemotePerson("Arabic", "Person", arabicPassport);
@@ -140,16 +143,34 @@ public class TestRemoteBank {
                 }
             });
         }
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            // No operations.
-        }
-        threadPool.shutdownNow();
+        waitForResult(threadPool, latch);
         for (int i = 0; i < 5000; i++) {
             Person person = bank.getRemotePerson("test" + i);
             assertEquals(bank.getPersonAccounts(person).get("sub" + i).getAmount(), i);
         }
+    }
+
+    @Test
+    public void test07_multithreadedIncrements() throws RemoteException {
+        Person person = createRemotePerson("test", "test", "test:test:test");
+        Account account = createAccountWithMoney(person, "subId", 0);
+        final int threadCount = 8;
+        ExecutorService threadPool = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+        for (int i = 0; i < threadCount; i++) {
+            threadPool.submit(() -> {
+                for (int j = 0; j < 1250; j++) {
+                    try {
+                        account.changeAmount(1);
+                    } catch (RemoteException e) {
+                        System.err.println("Remote error: " + e.getMessage());
+                    }
+                }
+                latch.countDown();
+            });
+        }
+        waitForResult(threadPool, latch);
+        assertEquals(10000, account.getAmount());
     }
 
     private void multithreadedCreationTask(final int threadId) throws RemoteException {
@@ -158,6 +179,15 @@ public class TestRemoteBank {
             Person person = createRemotePerson("test", "test", "test" + actualId);
             createAccountWithMoney(person, "sub" + actualId, actualId);
         }
+    }
+
+    private void waitForResult(final ExecutorService threadPool, final CountDownLatch latch) {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            // No operations.
+        }
+        threadPool.shutdownNow();
     }
 
 }

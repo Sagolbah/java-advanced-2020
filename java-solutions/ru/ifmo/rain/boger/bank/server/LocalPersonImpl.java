@@ -6,31 +6,26 @@ import ru.ifmo.rain.boger.bank.common.LocalPerson;
 
 import java.util.Map;
 
-public class LocalPersonImpl implements LocalPerson {
-    private final String firstName;
-    private final String lastName;
-    private final String passport;
+public class LocalPersonImpl extends AbstractPerson implements LocalPerson {
     private final Map<String, Account> accounts;
 
     @Override
     public String getFirstName() {
-        return firstName;
+        return super.getFirstName();
     }
 
     @Override
     public String getLastName() {
-        return lastName;
+        return super.getLastName();
     }
 
     @Override
     public String getPassport() {
-        return passport;
+        return super.getPassport();
     }
 
     public LocalPersonImpl(String firstName, String lastName, String passport, Map<String, Account> accounts) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.passport = passport;
+        super(firstName, lastName, passport);
         this.accounts = accounts;
     }
 

@@ -9,6 +9,6 @@ public class BankTests {
         JUnitCore junit = new JUnitCore();
         junit.addListener(new TextListener(System.out));
         Result result = junit.run(TestRemoteBank.class, TestClient.class);
-        System.exit(result.getFailureCount() == 0 ? 0 : 1);
+        System.exit(result.wasSuccessful() ? 0 : 1);
     }
 }

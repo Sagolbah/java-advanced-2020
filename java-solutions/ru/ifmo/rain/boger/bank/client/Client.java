@@ -18,7 +18,7 @@ public class Client {
         }
     }
 
-    private synchronized static void runClient(String[] args) throws RemoteException, ClientMainException {
+    private static void runClient(String[] args) throws RemoteException, ClientMainException {
         if (args == null || args.length != 5) {
             throw new ClientMainException("Incorrect arguments. Usage: Client <first name> <last name> <passport> <account ID> <money change>");
         }
@@ -57,7 +57,7 @@ public class Client {
         }
         System.out.println("Money: " + account.getAmount());
         System.out.println("Adding money");
-        account.setAmount(account.getAmount() + moneyChange);
+        account.changeAmount(moneyChange);
         System.out.println("New amount: " + account.getAmount());
     }
 

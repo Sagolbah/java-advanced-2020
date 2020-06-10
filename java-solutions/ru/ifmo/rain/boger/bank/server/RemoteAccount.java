@@ -24,4 +24,10 @@ public class RemoteAccount implements Account {
         System.out.println("Setting amount of money for account " + id);
         this.amount = amount;
     }
+
+    public synchronized void changeAmount(final int delta) {
+        System.out.println("Changing amount of money for account " + id);
+        this.amount += delta;
+    }
+
 }

@@ -43,6 +43,7 @@ public class TestClient {
         } catch (NoSuchObjectException e) {
             System.err.println("Could not unexport bank " + e.getMessage());
         }
+        TestingUtils.unexportRegistry(registry);
     }
 
     @Test

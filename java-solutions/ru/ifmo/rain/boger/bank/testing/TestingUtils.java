@@ -30,5 +30,13 @@ public final class TestingUtils {
         return LocateRegistry.createRegistry(registryPort);
     }
 
+    public static void unexportRegistry(final Registry registry) {
+        try {
+            UnicastRemoteObject.unexportObject(registry, true);
+        } catch (NoSuchObjectException e) {
+            System.err.println("Could not unexport object " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
 }

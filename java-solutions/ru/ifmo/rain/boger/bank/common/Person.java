@@ -11,4 +11,5 @@ public interface Person extends Remote {
 
     String getPassport() throws RemoteException;
 
+
 }
