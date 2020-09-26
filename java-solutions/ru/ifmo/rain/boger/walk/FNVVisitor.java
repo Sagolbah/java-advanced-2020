@@ -13,7 +13,7 @@ public class FNVVisitor extends SimpleFileVisitor<Path> {
     private final int BLOCK_SIZE = 1024;
     private final BufferedWriter writer;
 
-    FNVVisitor(final BufferedWriter writer) {
+    public FNVVisitor(final BufferedWriter writer) {
         this.writer = writer;
     }
 
